@@ -1,15 +1,15 @@
-name: Daily Auto Commit
+name: Daily Auto Commit (Heavy Mode)
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: '0 16 * * *' # Jalan setiap jam 23:00 pagi WIB
+    - cron: '0 16 * * *' # Jalan jam 23:00 WIB
   workflow_dispatch:
 
 permissions:
-  contents: write # PENTING: Memberi izin bot untuk nulis/push
+  contents: write
 
 jobs:
   build:
@@ -19,17 +19,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Update Date File
+      - name: Random Multiple Commits
         run: |
-          echo "Bot activity: $(date)" >> last_run_log.txt
-
-      - name: Commit and Push
-        run: |
-          # Menggunakan email asli tidak apa-apa selama terverifikasi
           git config --global user.email "raffaeljkt@gmail.com"
           git config --global user.name "fidhera"
           
-          git add last_run_log.txt
-          # Tambahan || true hanya untuk jaga-jaga, tidak wajib tapi good practice
-          git commit -m "Auto commit: Making my GitHub green" || echo "No changes to commit"
+          # Tentukan jumlah commit acak antara 6 sampai 12
+          # Biar terlihat natural (tidak selalu sama jumlahnya)
+          COUNT=$((RANDOM % 7 + 6))
+          
+          echo "Hari ini akan melakukan $COUNT commits..."
+          
+          for ((i=1; i<=COUNT; i++))
+          do
+            echo "Commit ke-$i pada $(date)" >> last_run_log.txt
+            git add last_run_log.txt
+            git commit -m "Auto commit batch $i of $COUNT: Dark Green Mode"
+            
+            # Tidur 1 detik biar jam commit-nya beda dikit (opsional)
+            sleep 1
+          done
+          
+          # Push semua commit sekaligus di akhir
           git push
