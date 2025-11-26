@@ -1,0 +1,35 @@
+name: Daily Auto Commit
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 16 * * *' # Jalan setiap jam 23:00 pagi WIB
+  workflow_dispatch:
+
+permissions:
+  contents: write # PENTING: Memberi izin bot untuk nulis/push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Update Date File
+        run: |
+          echo "Bot activity: $(date)" >> last_run_log.txt
+
+      - name: Commit and Push
+        run: |
+          # Menggunakan email asli tidak apa-apa selama terverifikasi
+          git config --global user.email "raffaeljkt@gmail.com"
+          git config --global user.name "fidhera"
+          
+          git add last_run_log.txt
+          # Tambahan || true hanya untuk jaga-jaga, tidak wajib tapi good practice
+          git commit -m "Auto commit: Making my GitHub green" || echo "No changes to commit"
+          git push
