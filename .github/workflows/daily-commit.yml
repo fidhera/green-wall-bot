@@ -1,11 +1,13 @@
-name: Daily Auto Commit (Heavy Mode)
+name: Daily Auto Commit (Midnight Mode)
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: '0 16 * * *' # Jalan jam 23:00 WIB
+    # 17:15 UTC = 00:15 WIB (Dini Hari)
+    # Bot akan jalan 15 menit setelah pergantian hari
+    - cron: '15 17 * * *'
   workflow_dispatch:
 
 permissions:
@@ -19,26 +21,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Random Multiple Commits
+      - name: Random Consistent Commits
         run: |
           git config --global user.email "raffaeljkt@gmail.com"
           git config --global user.name "fidhera"
           
-          # Tentukan jumlah commit acak antara 6 sampai 12
-          # Biar terlihat natural (tidak selalu sama jumlahnya)
-          COUNT=$((RANDOM % 7 + 6))
+          # TARGET: 8 sampai 12 Commit
+          # Rumus: Acak angka 0-4, lalu tambah 8.
+          COUNT=$((RANDOM % 5 + 8))
           
-          echo "Hari ini akan melakukan $COUNT commits..."
+          echo "Target hari ini: $COUNT commits (Jalan jam 00:15 WIB)"
           
           for ((i=1; i<=COUNT; i++))
           do
             echo "Commit ke-$i pada $(date)" >> last_run_log.txt
             git add last_run_log.txt
-            git commit -m "Auto commit batch $i of $COUNT: Dark Green Mode"
+            git commit -m "Auto commit batch $i of $COUNT: Midnight Green"
             
-            # Tidur 1 detik biar jam commit-nya beda dikit (opsional)
-            sleep 1
+            # Jeda 2 detik biar timestamp tidak numpuk
+            sleep 2
           done
           
-          # Push semua commit sekaligus di akhir
+          # Push sekalian di akhir
           git push
